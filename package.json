@@ -1,0 +1,25 @@
+{
+  "name": "bratwurst",
+  "version": "0.0.1",
+  "description": "Multi-tenancy dev and build helpers with file overriding and EJS templating",
+  "main": "index.js",
+  "dependencies": {
+    "proxy-middleware": "~0.4.0",
+    "connect-render": "~0.3.1",
+    "event-stream": "~3.0.16",
+    "connect": "~2.8.4",
+    "readdirp": "~0.3.1",
+    "gaze": "~0.4.1",
+    "optimist": "~0.6.0",
+    "winston": "~0.7.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/havashealthsoftware/bratwurst.git"
+  },
+  "license": "BSD"
+}
