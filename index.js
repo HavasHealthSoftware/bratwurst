@@ -3,26 +3,14 @@
 	TODO
 	---------------
 
-	HIGH PRIORITY
-
-		// Restrict templated renderer to root index.html and views folder
-		// Add static handler for non-templatable static data (everything except html at the moment)
-		// Add proxy for api calls - try putting this at the top of the middleware chain
-		One core site and then a UK site, US site, etc.
-		Make compass build steps locale aware (Talk to Christian)
-		 - Trust aware is a different issue
-
-
 	MEDIUM PRIORITY
 
 		Include HTML templating and copying in the build process
-
-
-
+		Tenant aware css rendering
 
 	LOW PRIORITY
 
-		Make everything async for maximum performance
+		Make everything async for maximum performance and stability
 		Tidy it up
 		Use json files for configuration of sites
 		Make it work as a grunt plugin
@@ -55,12 +43,12 @@ var pageData;
 
 var getJsonFiles = function() {
 
-	configBuilder.getJsonFiles('/../cft-heart-health/src/cprm/app', 'views/', {}, function(err, coreData) {
+	configBuilder.getJsonFiles('/app', 'views/', {}, function(err, coreData) {
 
 		winston.info('Core json data read');
 
 		// Get json data overrides
-		configBuilder.getJsonFiles('/../cft-heart-health/src/cprm/locale/' + locale, 'views/', coreData, function(err, mergedData) {
+		configBuilder.getJsonFiles('/locale/' + locale, 'views/', coreData, function(err, mergedData) {
 			winston.info('Locale specific json data read');
 			pageData = mergedData;
 		});
@@ -72,8 +60,8 @@ var getJsonFiles = function() {
 getJsonFiles();
 
 var gaze = new Gaze([
-		'../cft-heart-health/src/cprm/app/**/*.json',
-		'../cft-heart-health/src/cprm/locale/' + locale + '/**/*.json'
+		'app/**/*.json',
+		'cprm/locale/' + locale + '/**/*.json'
 ]);
 
 // Files have all started watching
@@ -87,7 +75,7 @@ gaze.on('all', function(event, filepath) {
 	getJsonFiles();
 });
 
-var rootPath = __dirname + '/../cft-heart-health/src/cprm';
+var rootPath = process.cwd() + '/';
 
 var useTemplating = function(req) {
 	return req.url.indexOf('.') === -1 || req.url.indexOf('.html') != -1;
@@ -164,11 +152,11 @@ connectApp.use(function(req, res, next) {
 
 });
 
-connectApp.use(connect.static(__dirname + '/../cft-heart-health/src/cprm/locale/' + locale), {
+connectApp.use(connect.static(process.cwd() + '/locale/' + locale), {
 	maxAge: 0
 });
 
-connectApp.use(connect.static(__dirname + '/../cft-heart-health/src/cprm/app'), {
+connectApp.use(connect.static(process.cwd() + '/app'), {
 	maxAge: 0
 });
 

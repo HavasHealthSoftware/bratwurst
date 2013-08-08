@@ -7,15 +7,15 @@ module.exports = {
 
 	getJsonFiles: function(rootDir, virtualRootDir, initialData, callback) {
 
-		var _rootDir = path.normalize(__dirname + '/' + rootDir);
+		var _rootDir = path.normalize(process.cwd() + '/' + rootDir);
 		var _virtualRootDir = path.normalize(_rootDir + '/' + virtualRootDir);
-
+		console.log(_virtualRootDir);
 		readdirp({
 			root: path.join(_virtualRootDir),
 			fileFilter: '*.json'
 		}, function(err, data) {
 			var fileData = initialData || {};
-			data.files.forEach(function(file) {
+				data.files.forEach(function(file) {
 				var relativePath = path.normalize(path.relative(_rootDir, file.fullPath));
 				relativePath = relativePath.replace(/\\/g, '/');
 				relativePath = '/' + relativePath;
