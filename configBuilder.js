@@ -5,6 +5,7 @@ var readdirp = require('readdirp'),
 
 module.exports = {
 
+	// TODO - decide if the rootDir here should be a drive path rather than a relative path
 	getJsonFiles: function(rootDir, virtualRootDir, initialData, callback) {
 
 		var _rootDir = path.normalize(process.cwd() + '/' + rootDir);

@@ -6,13 +6,15 @@
 	MEDIUM PRIORITY
 
 		Include HTML templating and copying in the build process
-		Tenant aware css rendering
+		Set up verbose option for Winston logging to avoid console spam
+		Tenant aware css rendering - nothing to do with this app actually, it's all client side JS!
 
 	LOW PRIORITY
 
 		Make everything async for maximum performance and stability
+				
 		Tidy it up
-		Use json files for configuration of sites
+		Use json files for configuration of sites?
 		Make it work as a grunt plugin
 
 */
@@ -21,14 +23,15 @@ var connect = require('connect'),
 	render = require('connect-render'),
 	fs = require('fs'),
 	path = require('path'),
-	configBuilder = require('./configBuilder'),
 	Gaze = require('gaze').Gaze,
 	url = require('url'),
 	proxy = require('proxy-middleware'),
 	argv = require('optimist').argv,
 	winston = require('winston'),
 	port = argv.port || 9020,
-	locale = argv.locale;
+	locale = argv.locale,
+	configBuilder = require('./configBuilder'),
+	localeBasePath = 'locale';
 
 if (!locale) {
 	winston.error('You must specify a locale');
@@ -100,55 +103,41 @@ var pathWithDefaultDocument = function(urlString) {
 	return urlString;
 };
 
-// US
-connectApp.use(function(req, res, next) {
+var environments = [localeBasePath + '/' + locale, 'app'];
 
-	if (!useTemplating(req)) {
-		winston.info(req.url + ' not templatable, skipping');
-		next();
-		return;
-	};
+// Set up Connect middleware for each environment (currently we just have two)
+environments.forEach(function(env) {
 
-	var fullVirtualPath = '/locale/' + locale + pathWithDefaultDocument(req.url);
-	winston.info(fullVirtualPath);
-	var fullPath = path.normalize(rootPath + fullVirtualPath);
-	if (fs.existsSync(fullPath)) {
-		winston.info(fullVirtualPath + ' found in ' + locale + ' directory');
-		var lookupUrl = pathWithDefaultDocument(req.url);
-		winston.info(lookupUrl + ' used for data lookup');
-		res.render(fullVirtualPath, {
-			pageData: pageData[lookupUrl.replace('.html', '.json')]
-		});
-	} else {
-		winston.info(fullVirtualPath + ' NOT found in ' + locale + ' directory');
-		next();
-	}
+	connectApp.use(function(req, res, next) {
 
-});
+		if (!useTemplating(req)) {
+			winston.info(req.url + ' not templatable, skipping');
+			next();
+			return;
+		};
 
-// UK
-connectApp.use(function(req, res, next) {
+		var fullVirtualPath = '/' + env + pathWithDefaultDocument(req.url);
+		winston.info(fullVirtualPath);
+		var fullPath = path.normalize(rootPath + fullVirtualPath);
 
-	if (!useTemplating(req)) {
-		winston.info(req.url + ' not templatable, skipping');
-		next();
-		return;
-	};
+		if (fs.existsSync(fullPath)) {
 
-	var fullVirtualPath = '/app' + pathWithDefaultDocument(req.url);
-	var fullPath = path.normalize(rootPath + fullVirtualPath);
+			winston.info(fullVirtualPath + ' found in ' + env + ' directory');
+			var lookupUrl = pathWithDefaultDocument(req.url);
+			winston.info(lookupUrl + ' used for data lookup');
+			res.render(fullVirtualPath, {
+				pageData: pageData[lookupUrl.replace('.html', '.json')]
+			});
 
-	if (fs.existsSync(fullPath)) {
-		winston.info(fullVirtualPath + ' found in app directory');
-		var lookupUrl = pathWithDefaultDocument(req.url);
-		winston.info(lookupUrl + ' used for data lookup');
-		res.render(fullVirtualPath, {
-			pageData: pageData[lookupUrl.replace('.html', '.json')]
-		});
-	} else {
-		winston.info(fullVirtualPath + ' NOT found in app directory');
-		next();
-	}
+		} else {
+
+			winston.info(fullVirtualPath + ' NOT found in ' + env + ' directory');
+			next();
+
+		}
+
+	});
+
 
 });
 
@@ -161,4 +150,5 @@ connectApp.use(connect.static(process.cwd() + '/app'), {
 });
 
 connectApp.listen(port);
+
 winston.info('Listening on port ' + port);
