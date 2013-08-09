@@ -33,7 +33,8 @@ var connect = require('connect'),
 	port = argv.port || 9020,
 	locale = argv.locale,
 	configBuilder = require('./configBuilder'),
-	localeBasePath = 'locale';
+	localeBasePath = 'locale',
+	apiUrl = argv.apiurl || 'http://localhost:9000/api';
 
 if (!locale) {
 	winston.error('You must specify a locale');
@@ -100,7 +101,7 @@ var connectApp = connect(
 	}
 }));
 
-connectApp.use('/api', proxy(url.parse('http://localhost:9000/api')));
+connectApp.use('/api', proxy(url.parse(apiUrl)));
 
 var pathWithDefaultDocument = function(urlString) {
 	if (urlString.substring(urlString.length - 1) === '/') {
