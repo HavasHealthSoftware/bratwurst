@@ -13,10 +13,7 @@
 
 	LOW PRIORITY
 
-		Make everything async for maximum performance and stability
-				
 		Tidy it up
-		Use json files for configuration of sites?
 		Make it work as a grunt plugin
 
 */
@@ -34,7 +31,19 @@ var connect = require('connect'),
 	locale = argv.locale,
 	configBuilder = require('./configBuilder'),
 	apiUrl = argv.apiurl || 'http://localhost:9000/api',
-	localeBasePath = 'locale';
+	localeBasePath = 'locale',
+	logLevel = argv.loglevel || 'info';
+
+
+winston.config.npm.colors.debug = winston.config.npm.colors.info;
+winston.config.npm.colors.info = 'magenta';
+winston.setLevels(winston.config.npm.levels);
+winston.addColors(winston.config.npm.colors);
+winston.remove(winston.transports.Console);
+winston.add(winston.transports.Console, {
+	colorize: true,
+	level: logLevel
+});
 
 if (!locale) {
 	winston.error('You must specify a locale');
@@ -60,6 +69,7 @@ var getJsonFiles = function() {
 		configBuilder.getJsonFiles('/locale/' + locale, 'views/', coreData, function(err, mergedData) {
 			winston.info('Locale specific json data read');
 			pageData = mergedData;
+			pageData['/index.json'] = {}; // temp measure to ensure root index is processed (can't currently read json files at this level as it hits node_modules)
 		});
 
 	});
@@ -70,7 +80,7 @@ getJsonFiles();
 
 var gazeTargets = environments.map(function(env) {
 	var t = path.join(rootPath, env, '/**/*.json');
-	console.log('gaze target: ' + t);
+	winston.debug('gaze target: ' + t);
 	return t;
 });
 
@@ -87,9 +97,6 @@ gaze.on('all', function(event, filepath) {
 	getJsonFiles();
 });
 
-var useTemplating = function(req) {
-	return req.url.indexOf('.') === -1 || req.url.indexOf('.html') != -1;
-}
 
 var connectApp = connect(
 	render({
@@ -110,36 +117,56 @@ var pathWithDefaultDocument = function(urlString) {
 	return urlString;
 };
 
-// Set up Connect middleware for each environment (currently we just have two)
+var useTemplating = function(requestUrl) {
+	return requestUrl.indexOf('.html') != -1;
+}
+
+// Set up EJS Connect middleware for each environment (currently we just have two)
 environments.forEach(function(env) {
 
 	connectApp.use(function(req, res, next) {
 
-		if (!useTemplating(req)) {
-			winston.info(req.url + ' not templatable, skipping');
+		var requestUrl = pathWithDefaultDocument(req.url).toLowerCase();
+
+		if (!useTemplating(requestUrl)) {
+			winston.debug(requestUrl + ' not templatable for ' + env + ', skipping');
 			next();
 			return;
 		};
 
+		var lookupUrl = requestUrl.replace('.html', '.json');
+
 		var fullVirtualPath = '/' + env + pathWithDefaultDocument(req.url);
-		winston.info(fullVirtualPath);
+		winston.debug(fullVirtualPath);
 		var fullPath = path.normalize(rootPath + fullVirtualPath);
 
-		if (fs.existsSync(fullPath)) {
 
-			winston.info(fullVirtualPath + ' found in ' + env + ' directory');
-			var lookupUrl = pathWithDefaultDocument(req.url).toLowerCase();
-			winston.info(lookupUrl + ' used for data lookup');
-			res.render(fullVirtualPath, {
-				pageData: pageData[lookupUrl.replace('.html', '.json')]
-			});
+		fs.exists(fullPath, function(exists) {
 
-		} else {
+			if (exists) {
+				winston.debug(fullVirtualPath + ' found in ' + env + ' directory');
+				var jsonData = pageData[lookupUrl];
 
-			winston.info(fullVirtualPath + ' NOT found in ' + env + ' directory');
-			next();
+				if (jsonData) {
+					winston.debug('Found data using ' + lookupUrl);
+					res.render(fullVirtualPath, {
+						pageData: jsonData
+					});
+				} else {
+					winston.debug('No data found for ' + lookupUrl);
+					next();
+				}
 
-		}
+			} else {
+
+				winston.debug(fullVirtualPath + ' not found in ' + env + ' directory');
+				next();
+
+			}
+
+		});
+
+
 
 	});
 
