@@ -15,11 +15,14 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no tests yet, come back soon!\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "http://github.com/havashealthsoftware/bratwurst.git"
   },
-  "license": "BSD"
+  "license": "BSD",
+  "main" : "index",
+  "preferGlobal" : true,
+  "bin" : "index.js"
 }

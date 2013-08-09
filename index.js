@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 /*
 
 	TODO
@@ -40,6 +42,9 @@ if (!locale) {
 
 locale = locale.toLowerCase();
 
+var environments = [localeBasePath + '/' + locale, 'app'];
+var rootPath = process.cwd() + '/';
+
 winston.info('Starting site for ' + locale + ' on port ' + port);
 
 var pageData;
@@ -62,10 +67,13 @@ var getJsonFiles = function() {
 
 getJsonFiles();
 
-var gaze = new Gaze([
-		'app/**/*.json',
-		'cprm/locale/' + locale + '/**/*.json'
-]);
+var gazeTargets = environments.map(function(env){
+	var t = path.join(rootPath, env, '/**/*.json');
+	console.log('gaze target: ' + t);
+	return t;
+});
+
+var gaze = new Gaze(gazeTargets);
 
 // Files have all started watching
 gaze.on('ready', function(watcher) {
@@ -77,8 +85,6 @@ gaze.on('all', function(event, filepath) {
 	winston.info('File changed: ' + filepath);
 	getJsonFiles();
 });
-
-var rootPath = process.cwd() + '/';
 
 var useTemplating = function(req) {
 	return req.url.indexOf('.') === -1 || req.url.indexOf('.html') != -1;
@@ -102,8 +108,6 @@ var pathWithDefaultDocument = function(urlString) {
 	}
 	return urlString;
 };
-
-var environments = [localeBasePath + '/' + locale, 'app'];
 
 // Set up Connect middleware for each environment (currently we just have two)
 environments.forEach(function(env) {
@@ -138,15 +142,14 @@ environments.forEach(function(env) {
 
 	});
 
-
 });
 
-connectApp.use(connect.static(process.cwd() + '/locale/' + locale), {
-	maxAge: 0
-});
+environments.forEach(function(env) {
 
-connectApp.use(connect.static(process.cwd() + '/app'), {
-	maxAge: 0
+	connectApp.use(connect.static(process.cwd() + '/' + env), {
+		maxAge: 0
+	});
+
 });
 
 connectApp.listen(port);
