@@ -33,8 +33,8 @@ var connect = require('connect'),
 	port = argv.port || 9020,
 	locale = argv.locale,
 	configBuilder = require('./configBuilder'),
-	localeBasePath = 'locale',
-	apiUrl = argv.apiurl || 'http://localhost:9000/api';
+	apiUrl = argv.apiurl || 'http://localhost:9000/api',
+	localeBasePath = 'locale';
 
 if (!locale) {
 	winston.error('You must specify a locale');
@@ -68,7 +68,7 @@ var getJsonFiles = function() {
 
 getJsonFiles();
 
-var gazeTargets = environments.map(function(env){
+var gazeTargets = environments.map(function(env) {
 	var t = path.join(rootPath, env, '/**/*.json');
 	console.log('gaze target: ' + t);
 	return t;
@@ -128,7 +128,7 @@ environments.forEach(function(env) {
 		if (fs.existsSync(fullPath)) {
 
 			winston.info(fullVirtualPath + ' found in ' + env + ' directory');
-			var lookupUrl = pathWithDefaultDocument(req.url);
+			var lookupUrl = pathWithDefaultDocument(req.url).toLowerCase();
 			winston.info(lookupUrl + ' used for data lookup');
 			res.render(fullVirtualPath, {
 				pageData: pageData[lookupUrl.replace('.html', '.json')]

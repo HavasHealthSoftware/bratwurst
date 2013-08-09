@@ -1,7 +1,8 @@
 var readdirp = require('readdirp'),
 	path = require('path')
 	fs = require('fs'),
-	winston = require('winston');
+	winston = require('winston'),
+	merge = require('merge');
 
 module.exports = {
 
@@ -16,12 +17,20 @@ module.exports = {
 			fileFilter: '*.json'
 		}, function(err, data) {
 			var fileData = initialData || {};
-				data.files.forEach(function(file) {
+			data.files.forEach(function(file) {
 				var relativePath = path.normalize(path.relative(_rootDir, file.fullPath));
 				relativePath = relativePath.replace(/\\/g, '/');
 				relativePath = '/' + relativePath;
+				relativePath = relativePath.toLowerCase();
+
+				var jsonData = JSON.parse(fs.readFileSync(file.fullPath, 'utf8'));
+				var relativePathData = fileData[relativePath];
+				relativePathData = relativePathData ? merge(relativePathData, jsonData) : jsonData;
+
+				console.log(relativePathData);
+
 				winston.info('Setting key at ' + relativePath + ' in config file');
-				fileData[relativePath] = JSON.parse(fs.readFileSync(file.fullPath, 'utf8'));
+				fileData[relativePath] = relativePathData;
 			});
 			callback(null, fileData);
 		});
