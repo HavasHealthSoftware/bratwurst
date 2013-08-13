@@ -3,17 +3,19 @@
 /*
 
 	TODO
-	---------------
+	------------------------------------------------------------------------------------------------
+
+	HIGH PRIORITY
+
+		Include HTML templating and copying in the build process
 
 	MEDIUM PRIORITY
 
-		Include HTML templating and copying in the build process
-		Set up verbose option for Winston logging to avoid console spam
-		Tenant aware css rendering - nothing to do with this app actually, it's all client side JS!
-
+		Create grunt CLI commands in main gruntfile to run server / build process
+		
 	LOW PRIORITY
 
-		Tidy it up
+		Tidy it up more
 		Make it work as a grunt plugin
 
 */
@@ -23,8 +25,6 @@ var path = require('path'),
 	url = require('url'),
 	winston = require('winston'),
 	program = require('commander'),
-	BratwurstServer = require('./lib/bratwurst-server'),
-	bratwurstBuild = require('./lib/build')
 	util = require('util');
 
 // Setup logger
@@ -49,25 +49,33 @@ var serverCommand = program.command('server')
 	.description('run dev server')
 	.option('-e, --environments <environments>', 'Specify the environment paths in a comma separated list')
 	.option('-l, --locale <locale>', 'Specify the locale')
-	.option('-p, --port [port]', 'Port [9020]', 9020)
 	.option('-b, --base-path [basePath]', 'Base Path [./]', './')
+	.option('-p, --port [port]', 'Port [9020]', 9020)
 	.option('-a, --api-url [apiUrl]', 'Url to the api server [http://localhost:9000/api]', 'http://localhost:9000/api')
 	.option('-g, --log-level [level]', 'Set the loglevel [info]', 'info')
 	.action(function() {
 	commandExecuted = true;
 	setupLogger(serverCommand.logLevel);
-	var server = new BratwurstServer(serverCommand);
+	var server = new require('./lib/bratwurst-server')(serverCommand);
 	server.on('usageIssue', function() {
 		serverCommand.help();
 	});
 	server.start();
 });
 
-program.command('build')
+var buildCommand = program.command('build')
 	.description('run build pipeline')
 	.option('-e, --environments <environments>', 'Specify the environment paths in a comma separated list')
+	.option('-l, --locale <locale>', 'Specify the locale')
+	.option('-b, --base-path [basePath]', 'Base Path [./]', './')
 	.action(function() {
-	console.log('build');
+	commandExecuted = true;
+	setupLogger(buildCommand.logLevel);
+	var builder = new require('./lib/build')(buildCommand);
+	builder.on('usageIssue', function() {
+		buildCommand.help();
+	});
+	builder.start();
 });
 
 program.parse(process.argv);
