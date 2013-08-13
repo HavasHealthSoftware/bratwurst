@@ -56,7 +56,8 @@ var serverCommand = program.command('server')
 	.action(function() {
 	commandExecuted = true;
 	setupLogger(serverCommand.logLevel);
-	var server = new require('./lib/bratwurst-server')(serverCommand);
+	var BratwurstServer = require('./lib/bratwurst-server');
+	var server = new BratwurstServer(serverCommand);
 	server.on('usageIssue', function() {
 		serverCommand.help();
 	});
