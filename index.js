@@ -48,7 +48,6 @@ var commandExecuted = false;
 var serverCommand = program.command('server')
 	.description('run dev server')
 	.option('-e, --environments <environments>', 'Specify the environment paths in a comma separated list')
-	.option('-l, --locale <locale>', 'Specify the locale')
 	.option('-b, --base-path [basePath]', 'Base Path [./]', './')
 	.option('-p, --port [port]', 'Port [9020]', 9020)
 	.option('-a, --api-url [apiUrl]', 'Url to the api server [http://localhost:9000/api]', 'http://localhost:9000/api')
@@ -67,7 +66,6 @@ var serverCommand = program.command('server')
 var buildCommand = program.command('build')
 	.description('run build pipeline')
 	.option('-e, --environments <environments>', 'Specify the environment paths in a comma separated list')
-	.option('-l, --locale <locale>', 'Specify the locale')
 	.option('-b, --base-path [basePath]', 'Base Path [./]', './')
 	.action(function() {
 	commandExecuted = true;
