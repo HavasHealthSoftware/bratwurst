@@ -1,6 +1,6 @@
 {
   "name": "bratwurst",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Multi-tenancy dev and build helpers with file overriding and EJS templating",
   "main": "index",
   "dependencies": {
@@ -14,7 +14,8 @@
     "winston": "~0.7.2",
     "commander": "~2.0.0",
     "async": "~0.2.9",
-    "deepmerge": "~0.2.7"
+    "deepmerge": "~0.2.7",
+    "ejs": "~0.8.4"
   },
   "scripts": {
     "test": "echo \"Error: no tests yet, come back soon!\" && exit 1"

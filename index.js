@@ -66,11 +66,14 @@ var serverCommand = program.command('server')
 var buildCommand = program.command('build')
 	.description('run build pipeline')
 	.option('-e, --environments <environments>', 'Specify the environment paths in a comma separated list')
+	.option('-t, --buildPath <buildPath>', 'Specify the build path target directory')
 	.option('-b, --base-path [basePath]', 'Base Path [./]', './')
+	.option('-g, --log-level [level]', 'Set the loglevel [info]', 'info')
 	.action(function() {
 	commandExecuted = true;
 	setupLogger(buildCommand.logLevel);
-	var builder = new require('./lib/build')(buildCommand);
+	var BratwurstBuilder = require('./lib/bratwurst-builder');
+	var builder = new BratwurstBuilder(buildCommand);
 	builder.on('usageIssue', function() {
 		buildCommand.help();
 	});

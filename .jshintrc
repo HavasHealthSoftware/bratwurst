@@ -1,0 +1,30 @@
+{
+    "undef": true,
+    "unused": true,
+    "curly": true,
+    "eqnull": true,
+    "eqeqeq": true,
+    "strict": false,
+    "globals": {
+        "browser": true,
+        "define": true,
+        "require": true,
+        "ko": true,
+        "_": true,
+        "setTimeout": true,
+        "$": true,
+        "moment": true,
+        "Raphael": true,
+        "toastr": true,
+        "module": true,
+        "document": true,
+        "describe": true,
+        "before": true,
+        "beforeEach": true,
+        "after": true,
+        "afterEach": true,
+        "it": true,
+        "sinon": true,
+        "process": true
+    }
+}
