@@ -40,8 +40,7 @@ function setupLogger(logLevel){
 	});
 }
 
-program
-	.version('0.0.6')
+program.version('0.0.13');
 
 var commandExecuted = false;
 
