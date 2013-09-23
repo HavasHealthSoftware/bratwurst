@@ -1,10 +1,9 @@
 {
   "name": "bratwurst",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Multi-tenancy dev and build helpers with file overriding and EJS templating",
   "main": "index",
   "dependencies": {
-    "proxy-middleware": "~0.4.0",
     "connect-render": "~0.3.1",
     "event-stream": "~3.0.16",
     "connect": "~2.8.4",
@@ -15,7 +14,8 @@
     "commander": "~2.0.0",
     "async": "~0.2.9",
     "deepmerge": "~0.2.7",
-    "ejs": "~0.8.4"
+    "ejs": "~0.8.4",
+    "proxy-middleware": "git+http://github.com/stevewillcock/connect-proxy.git"
   },
   "scripts": {
     "test": "echo \"Error: no tests yet, come back soon!\" && exit 1"
