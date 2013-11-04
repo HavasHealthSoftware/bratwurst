@@ -1,6 +1,6 @@
 {
   "name": "bratwurst",
-  "version": "0.0.15",
+  "version": "0.0.18",
   "description": "Multi-tenancy dev and build helpers with file overriding and EJS templating",
   "main": "index",
   "dependencies": {
